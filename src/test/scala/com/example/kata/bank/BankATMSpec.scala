@@ -6,7 +6,7 @@ import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 import akka.pattern.ask
 import akka.util.Timeout
 
-import scala.concurrent.Await
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
@@ -32,8 +32,11 @@ class BankATMSpec(_system: ActorSystem)
 
       val resultingMessage = atm ? deposit
 
-      val result = Await.result(resultingMessage, timeout.duration)
-      result.shouldEqual(SuccessMessage("Deposited 500 EUR"))
+      blockingGet(resultingMessage).shouldEqual(SuccessMessage("Deposited 500 EUR"))
     }
+  }
+
+  private def blockingGet(resultingMessage: Future[Any]) = {
+    Await.result(resultingMessage, timeout.duration)
   }
 }
