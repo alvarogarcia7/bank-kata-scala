@@ -32,6 +32,13 @@ class BankATMSpec(_system: ActorSystem)
 
       blockingGet(result).shouldEqual(PinRequired())
     }
+
+    "Welcomes the user after the pin is inserted" in {
+      atm ! InsertCard("4000-0000-0000-0000")
+      val result = atm ? TypePin("0123")
+
+      blockingGet(result).shouldEqual(WelcomeMessage("Hello, John!"))
+    }
   }
 
   "Deposit money on an account" should {
