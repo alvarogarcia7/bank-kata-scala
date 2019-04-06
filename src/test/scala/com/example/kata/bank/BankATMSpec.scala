@@ -66,6 +66,15 @@ class BankATMSpec(_system: ActorSystem)
 
       blockingGet(resultingMessage).shouldEqual(SuccessMessage("Deposited 500 EUR"))
     }
+
+    "tells the user the operation was a success, with any other amount" in {
+      atm ! InsertCard("4000-0000-0000-0000")
+      atm ! TypePin("0123")
+
+      val resultingMessage = atm ? Deposit(800)
+
+      blockingGet(resultingMessage).shouldEqual(SuccessMessage("Deposited 800 EUR"))
+    }
   }
 
   private def blockingGet(resultingMessage: Future[Any]) = {
