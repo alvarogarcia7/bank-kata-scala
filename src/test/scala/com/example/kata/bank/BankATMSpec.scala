@@ -41,8 +41,19 @@ class BankATMSpec(_system: ActorSystem)
     }
   }
 
+  "No operation can be performed without the card" should {
+    "deposit" in {
+      val resultingMessage = atm ? Deposit(500)
+
+      blockingGet(resultingMessage).shouldEqual(NotLoggedIn())
+    }
+  }
+
   "Deposit money on an account" should {
     "tells the user the operation was a success" in {
+      atm ! InsertCard("4000-0000-0000-0000")
+      atm ! TypePin("0123")
+
       val resultingMessage = atm ? Deposit(500)
 
       blockingGet(resultingMessage).shouldEqual(SuccessMessage("Deposited 500 EUR"))
