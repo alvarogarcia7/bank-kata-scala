@@ -1,4 +1,5 @@
 package com.example.kata.bank;
 
-public class Deposit {
+case class Deposit(amount: Int) {
+
 }

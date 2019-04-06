@@ -1,5 +1,3 @@
 package com.example.kata.bank
 
-class SuccessMessage {
-
-}
+case class SuccessMessage(message: String)
