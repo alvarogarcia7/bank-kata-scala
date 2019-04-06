@@ -22,15 +22,21 @@ class BankATMSpec(_system: ActorSystem)
     shutdown(system)
   }
 
-  implicit val timeout = Timeout(5 seconds)
+  implicit val timeout = Timeout(1 seconds)
   val testProbe = TestProbe()
   val atm = system.actorOf(Props[ATM], "atm")
 
+  "Start the ATM by inserting the card" should {
+    "tells the user the card needs a PIN" in {
+      val result = atm ? InsertCard("4000-0000-0000-0000")
+
+      blockingGet(result).shouldEqual(PinRequired())
+    }
+  }
+
   "Deposit money on an account" should {
     "tells the user the operation was a success" in {
-      val deposit = Deposit(500)
-
-      val resultingMessage = atm ? deposit
+      val resultingMessage = atm ? Deposit(500)
 
       blockingGet(resultingMessage).shouldEqual(SuccessMessage("Deposited 500 EUR"))
     }
