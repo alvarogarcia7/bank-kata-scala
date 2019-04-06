@@ -8,7 +8,7 @@ class ATM() extends Actor {
   def receive = {
     case Deposit(amount) => {
       if (loggedIn) {
-        sender() ! SuccessMessage("Deposited 500 EUR")
+        sender() ! SuccessMessage(s"Deposited $amount EUR")
       } else {
         sender() ! NotLoggedIn()
       }
