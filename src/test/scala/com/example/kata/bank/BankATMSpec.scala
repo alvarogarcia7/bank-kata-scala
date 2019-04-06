@@ -22,7 +22,7 @@ class BankATMSpec(_system: ActorSystem)
 
   before {
     testProbe = TestProbe()
-    atm = system.actorOf(Props[ATM])
+    atm = system.actorOf(ATM.props(testProbe.ref))
   }
 
   def this() = this(ActorSystem("BankATM"))
@@ -42,10 +42,16 @@ class BankATMSpec(_system: ActorSystem)
     }
 
     "Welcomes the user after the pin is inserted" in {
-      atm ! InsertCard("4000-0000-0000-0000")
+      atm ! InsertCard("4000-0000-0000-0123")
       val result = atm ? TypePin("0123")
 
       blockingGet(result).shouldEqual(WelcomeMessage("Hello, John!"))
+    }
+    "Says wrong ping after the wrong pin is inserted" in {
+      atm ! InsertCard("4000-0000-0000-0123")
+      val result = atm ? TypePin("0000")
+
+      blockingGet(result).shouldEqual(WrongPin())
     }
   }
 
@@ -59,7 +65,7 @@ class BankATMSpec(_system: ActorSystem)
 
   "Deposit money on an account" should {
     "tells the user the operation was a success" in {
-      atm ! InsertCard("4000-0000-0000-0000")
+      atm ! InsertCard("4000-0000-0000-0123")
       atm ! TypePin("0123")
 
       val resultingMessage = atm ? Deposit(500)

@@ -1,25 +1,30 @@
 package com.example.kata.bank
 
-import akka.actor.{Actor, Props}
+import akka.actor.{Actor, ActorRef, Props}
 
-class ATM() extends Actor {
+class ATM(userIdentification: ActorRef) extends Actor {
+  var card: String = _
   var loggedIn = false
 
   def receive = {
-    case InsertCard(_) => sender() ! PinRequired()
-    case TypePin(_) =>
+    case InsertCard(card) => {
+      this.card = card
+      sender() ! PinRequired()
+    }
+    case TypePin(pin) =>
       loggedIn = true
-      sender() ! WelcomeMessage("Hello, John!")
+      if (isValidPin(pin)) {
+        sender() ! WelcomeMessage("Hello, John!")
+      } else {
+        sender() ! WrongPin()
+      }
     case _ if !loggedIn => sender() ! NotLoggedIn()
     case Deposit(amount) => sender() ! SuccessMessage(s"Deposited $amount EUR")
   }
+
+  def isValidPin(pin: String): Boolean = "-".r.split(card)(3) == pin
 }
 
 object ATM {
-  def props(): Props = Props(new ATM())
-
-  final case class WhoToGreet(who: String)
-
-  case object Greet
-
+  def props(userIdentification: ActorRef): Props = Props(new ATM(userIdentification))
 }
