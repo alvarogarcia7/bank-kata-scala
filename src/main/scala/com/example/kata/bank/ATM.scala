@@ -7,8 +7,8 @@ class ATM(userIdentification: ActorRef) extends Actor {
   var loggedIn = false
 
   def receive = {
-    case InsertCard(card) => {
-      this.card = card
+    case InsertCard(cardNumber) => {
+      this.card = cardNumber
       sender() ! PinRequired()
     }
     case TypePin(pin) =>
