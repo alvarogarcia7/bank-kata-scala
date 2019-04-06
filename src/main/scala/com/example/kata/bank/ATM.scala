@@ -6,12 +6,12 @@ class ATM() extends Actor {
   var loggedIn = false
 
   def receive = {
-    case Deposit(amount) if loggedIn => sender() ! SuccessMessage(s"Deposited $amount EUR")
-    case Deposit(amount) => sender() ! NotLoggedIn()
     case InsertCard(_) => sender() ! PinRequired()
     case TypePin(_) =>
       loggedIn = true
       sender() ! WelcomeMessage("Hello, John!")
+    case _ if !loggedIn => sender() ! NotLoggedIn()
+    case Deposit(amount) => sender() ! SuccessMessage(s"Deposited $amount EUR")
   }
 }
 
