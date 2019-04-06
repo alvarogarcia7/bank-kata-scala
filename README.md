@@ -1,3 +1,6 @@
+# Bank Kata using Actors, in Scala + Akka
+
+
 ## Unresolved questions
 
 
