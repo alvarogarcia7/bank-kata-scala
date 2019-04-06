@@ -12,6 +12,7 @@ class ATM() extends Actor {
 
   def receive = {
     case Deposit(amount) => sender() ! SuccessMessage("Deposited 500 EUR")
+    case InsertCard(_) => sender() ! PinRequired()
   }
 }
 
