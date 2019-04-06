@@ -1,8 +1,8 @@
 package com.example.kata.bank
 
-import akka.actor.{ActorSystem, Props}
+import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.testkit.{TestKit, TestProbe}
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}
 import akka.pattern.ask
 import akka.util.Timeout
 
@@ -14,7 +14,16 @@ class BankATMSpec(_system: ActorSystem)
   extends TestKit(_system)
     with Matchers
     with WordSpecLike
-    with BeforeAndAfterAll {
+    with BeforeAndAfterAll
+    with BeforeAndAfter {
+
+  var testProbe: TestProbe = _
+  var atm: ActorRef = _
+
+  before {
+    testProbe = TestProbe()
+    atm = system.actorOf(Props[ATM])
+  }
 
   def this() = this(ActorSystem("BankATM"))
 
@@ -23,8 +32,7 @@ class BankATMSpec(_system: ActorSystem)
   }
 
   implicit val timeout = Timeout(1 seconds)
-  val testProbe = TestProbe()
-  val atm = system.actorOf(Props[ATM], "atm")
+
 
   "Start the ATM by inserting the card" should {
     "tells the user the card needs a PIN" in {
