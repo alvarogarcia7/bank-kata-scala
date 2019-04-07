@@ -1,17 +1,15 @@
 package com.example.kata.bank
 
-import akka.actor.{ActorRef, ActorSystem, Props}
+import akka.actor.{ActorRef, ActorSystem}
 import akka.testkit.{TestKit, TestProbe}
-import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}
-import akka.pattern.ask
 import akka.util.Timeout
-import org.mockito.Mockito
+import com.example.kata.bank.ATM.DepositSuccess
+import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}
 
-import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-class BankATMSpec(_system: ActorSystem)
+class ATMSpec(_system: ActorSystem)
   extends TestKit(_system)
     with Matchers
     with WordSpecLike
@@ -24,7 +22,6 @@ class BankATMSpec(_system: ActorSystem)
 
   before {
     testProbe = TestProbe()
-    //    printer = Mockito.mock(classOf[Printer])
     printer = TestProbe()
     atm = system.actorOf(ATM.props(testProbe.ref, printer.ref))
   }
@@ -39,15 +36,6 @@ class BankATMSpec(_system: ActorSystem)
 
 
   "Start the ATM by inserting the card" should {
-    "tells the user the card needs a PIN" in {
-      atm ! InsertCard("4000-0000-0000-0000")
-
-      val msg = printer.fishForSpecificMessage() {
-        case msg@PinRequired() ⇒ msg
-      }
-      msg should be(PinRequired())
-    }
-
     "Welcomes the user after the pin is inserted" in {
       atm ! InsertCard("4000-0000-0000-0123")
 
@@ -71,17 +59,6 @@ class BankATMSpec(_system: ActorSystem)
     }
   }
 
-  "No operation can be performed without the card" should {
-    "deposit" in {
-      atm ! Deposit(500)
-
-      val msg = printer.fishForSpecificMessage() {
-        case msg@NotLoggedIn() ⇒ msg
-      }
-      msg should be(NotLoggedIn())
-    }
-  }
-
   "Deposit money on an account" should {
     "tells the user the operation was a success" in {
       atm ! InsertCard("4000-0000-0000-0123")
@@ -90,13 +67,9 @@ class BankATMSpec(_system: ActorSystem)
       atm ! Deposit(500)
 
       val msg = printer.fishForSpecificMessage() {
-        case msg@SuccessMessage(_) ⇒ msg
+        case msg@DepositSuccess(_) ⇒ msg
       }
-      msg should be(SuccessMessage("Deposited 500 EUR"))
+      msg should be(DepositSuccess(500))
     }
-  }
-
-  private def blockingGet(resultingMessage: Future[Any]) = {
-    Await.result(resultingMessage, timeout.duration)
   }
 }
