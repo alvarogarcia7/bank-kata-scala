@@ -9,7 +9,7 @@ class ATM(userIdentification: ActorRef, printer: ActorRef) extends Actor with ak
   def receive: Receive = {
     case InsertCard(cardNumber) =>
       log.debug(s"$self is now an ATMWithCard")
-      context become ATMWithCard(cardNumber, 0)
+      context become(ATMWithCard(cardNumber, 0), false)
     case SuccessPrinting() => //do nothing
   }
 
@@ -20,7 +20,7 @@ class ATM(userIdentification: ActorRef, printer: ActorRef) extends Actor with ak
         context become AuthenticatedATM
       } else {
         if (failedAttempts >= 3) {
-          context become receive
+          context unbecome()
         } else {
           context become ATMWithCard(cardNumber, failedAttempts + 1)
         }
