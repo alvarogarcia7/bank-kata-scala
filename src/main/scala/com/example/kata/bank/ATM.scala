@@ -6,7 +6,9 @@ class ATM(userIdentification: ActorRef, printer: ActorRef) extends Actor with ak
 
   import com.example.kata.bank.ATM._
 
-  def receive: Receive = {
+  override def receive: Receive = ATMWithoutCard
+
+  def ATMWithoutCard: Receive = {
     case InsertCard(cardNumber) =>
       log.debug(s"$self is now an ATMWithCard")
       context become(ATMWithCard(cardNumber, 0), false)
