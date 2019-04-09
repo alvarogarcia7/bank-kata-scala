@@ -91,10 +91,6 @@ class ATMSpec(_system: ActorSystem)
 
       atm ! TypePin("0123")
 
-      val msg = printer.fishForSpecificMessage() {
-        case msg@WelcomeMessage(_) ⇒ msg
-      }
-      msg should be(null)
     }
   }
 

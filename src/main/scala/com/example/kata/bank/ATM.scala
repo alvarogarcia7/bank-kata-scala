@@ -6,6 +6,7 @@ class ATM(userIdentification: ActorRef, printer: ActorRef) extends Actor {
   import com.example.kata.bank.ATM._
 
   var card: String = _
+  var failedPinAttempts: Int = 0
 
   def receive: Receive = {
     case InsertCard(cardNumber) =>
@@ -20,6 +21,11 @@ class ATM(userIdentification: ActorRef, printer: ActorRef) extends Actor {
         context become AuthenticatedATM
       } else {
         printer ! WrongPin()
+        this.failedPinAttempts += 1
+        if (this.failedPinAttempts >= 3) {
+          printer ! ErrorMessage("too many failed attempts", msg)
+          context become receive
+        }
       }
   }
 
