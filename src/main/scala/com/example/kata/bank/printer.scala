@@ -5,5 +5,5 @@ trait Printer {
 }
 
 class ScreenPrinter extends Printer {
-  override def print(any: Any): Unit = ???
+  override def print(any: Any): Unit = println(any)
 }
