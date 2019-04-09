@@ -91,6 +91,7 @@ class ATMSpec(_system: ActorSystem)
 
       atm ! TypePin("0123")
 
+      //TODO AGB how to test that the message is not received?
     }
   }
 
