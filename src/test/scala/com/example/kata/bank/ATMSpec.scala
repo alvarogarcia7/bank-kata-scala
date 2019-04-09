@@ -93,6 +93,22 @@ class ATMSpec(_system: ActorSystem)
 
       //TODO AGB how to test that the message is not received?
     }
+
+    "The user can not log in again after failing" in {
+      atm ! InsertCard("4000-0000-0000-0123")
+      atm ! TypePin("0000")
+      atm ! TypePin("0000")
+      atm ! TypePin("0000")
+
+      atm ! InsertCard("4000-0000-0000-0123")
+
+      atm ! TypePin("0123")
+
+      val msg = printer.fishForSpecificMessage() {
+        case msg@WelcomeMessage(_) ⇒ msg
+      }
+      msg should be(WelcomeMessage("Hello, John!"))
+    }
   }
 
   "Deposit money on an account" should {
