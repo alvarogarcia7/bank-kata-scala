@@ -3,23 +3,28 @@ package com.example.kata.bank
 import akka.actor.{Actor, ActorRef, Props}
 
 class ATM(userIdentification: ActorRef, printer: ActorRef) extends Actor {
-  var card: String = _
-  var loggedIn = false
+  import com.example.kata.bank.ATM._
 
-  def receive = {
-    case InsertCard(cardNumber) => {
+  var card: String = _
+
+  def receive: Receive = {
+    case InsertCard(cardNumber) =>
       this.card = cardNumber
-      printer ! PinRequired()
-    }
+      context become ATMWithCard
+  }
+
+  def ATMWithCard: Receive = {
     case TypePin(pin) =>
-      loggedIn = true
       if (isValidPin(pin)) {
         printer ! WelcomeMessage("Hello, John!")
+        context become AuthenticatedATM
       } else {
         printer ! WrongPin()
       }
-    case _ if !loggedIn => printer ! NotLoggedIn()
-    case Deposit(amount) => printer ! SuccessMessage(s"Deposited $amount EUR")
+  }
+
+  def AuthenticatedATM: Receive = {
+    case Deposit(amount) => printer ! DepositSuccess(amount)
   }
 
   def isValidPin(pin: String): Boolean = "-".r.split(card)(3) == pin
@@ -27,4 +32,6 @@ class ATM(userIdentification: ActorRef, printer: ActorRef) extends Actor {
 
 object ATM {
   def props(userIdentification: ActorRef, printer: ActorRef): Props = Props(new ATM(userIdentification, printer))
+
+  case class DepositSuccess(amount: Int)
 }
