@@ -14,6 +14,8 @@ class PrinterActor(printer: Printer) extends Actor {
       sender() ! SuccessPrinting()
     case SuccessMessage(message) => printer.print(s"Success: $message")
       sender() ! SuccessPrinting()
+    case ErrorMessage(message, _) => printer.print(s"Error: $message")
+      sender() ! SuccessPrinting()
   }
 }
 

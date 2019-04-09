@@ -75,6 +75,14 @@ class PrinterATMSpec(_system: ActorSystem)
       waitForSuccessPrinting(result)
       verify(printer).print("Success: x")
     }
+
+    "ErrorMessage" in {
+
+      val result = actor ? ErrorMessage("x", null)
+
+      waitForSuccessPrinting(result)
+      verify(printer).print("Error: x")
+    }
   }
 
   private def waitForSuccessPrinting(result: Future[Any]) = {
