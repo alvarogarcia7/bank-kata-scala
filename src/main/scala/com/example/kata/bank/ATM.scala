@@ -6,29 +6,25 @@ class ATM(userIdentification: ActorRef, printer: ActorRef) extends Actor with ak
 
   import com.example.kata.bank.ATM._
 
-  var card: String = _
-  var failedPinAttempts: Int = 0
-
   def receive: Receive = {
     case InsertCard(cardNumber) =>
-      this.card = cardNumber
       log.debug(s"$self is now an ATMWithCard")
-      context become ATMWithCard
+      context become ATMWithCard(cardNumber, 0)
     case SuccessPrinting() => //do nothing
   }
 
-  def ATMWithCard: Receive = {
-    case msg@TypePin(pin) =>
-      if (isValidPin(pin)) {
+  def ATMWithCard(cardNumber: String, failedAttempts: Int): Receive = {
+    case TypePin(pin) =>
+      if (isValidPin(pin, cardNumber)) {
         printer ! WelcomeMessage("Hello, John!")
         context become AuthenticatedATM
       } else {
-        printer ! WrongPin()
-        this.failedPinAttempts += 1
-        if (this.failedPinAttempts >= 3) {
-          printer ! ErrorMessage("too many failed attempts", msg)
+        if (failedAttempts >= 3) {
           context become receive
+        } else {
+          context become ATMWithCard(cardNumber, failedAttempts + 1)
         }
+        printer ! WrongPin()
       }
   }
 
@@ -36,11 +32,12 @@ class ATM(userIdentification: ActorRef, printer: ActorRef) extends Actor with ak
     case Deposit(amount) => printer ! DepositSuccess(amount)
   }
 
-  def isValidPin(pin: String): Boolean = "-".r.split(card)(3) == pin
+  def isValidPin(pin: String, card: String): Boolean = "-".r.split(card)(3) == pin
 }
 
 object ATM {
   def props(userIdentification: ActorRef, printer: ActorRef): Props = Props(new ATM(userIdentification, printer))
 
   case class DepositSuccess(amount: Int)
+
 }
