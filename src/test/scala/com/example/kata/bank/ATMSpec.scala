@@ -69,6 +69,19 @@ class ATMSpec(_system: ActorSystem)
       }
       msg should be(WelcomeMessage("Hello, John!"))
     }
+
+    "The user can log in after two wrong PIN" in {
+      atm ! InsertCard("4000-0000-0000-0123")
+      atm ! TypePin("0000")
+      atm ! TypePin("0000")
+
+      atm ! TypePin("0123")
+
+      val msg = printer.fishForSpecificMessage() {
+        case msg@WelcomeMessage(_) ⇒ msg
+      }
+      msg should be(WelcomeMessage("Hello, John!"))
+    }
   }
 
   "Deposit money on an account" should {
