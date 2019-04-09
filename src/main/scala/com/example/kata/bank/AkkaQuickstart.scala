@@ -14,7 +14,7 @@ object AkkaQuickstart extends App {
   val atm = system.actorOf(ATM.props(userIdentification, printerActor), "ATM")
 
 
-  atm ! InsertCard("4000-0000-0000-000")
+  atm ! InsertCard("4000-0000-0000-0123")
   atm ! TypePin("0000")
   atm ! TypePin("0000")
   atm ! TypePin("0000")

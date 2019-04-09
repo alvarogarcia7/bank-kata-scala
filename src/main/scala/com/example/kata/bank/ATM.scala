@@ -2,7 +2,8 @@ package com.example.kata.bank
 
 import akka.actor.{Actor, ActorRef, Props}
 
-class ATM(userIdentification: ActorRef, printer: ActorRef) extends Actor {
+class ATM(userIdentification: ActorRef, printer: ActorRef) extends Actor with akka.actor.ActorLogging {
+
   import com.example.kata.bank.ATM._
 
   var card: String = _
@@ -11,11 +12,13 @@ class ATM(userIdentification: ActorRef, printer: ActorRef) extends Actor {
   def receive: Receive = {
     case InsertCard(cardNumber) =>
       this.card = cardNumber
+      log.debug(s"$self is now an ATMWithCard")
       context become ATMWithCard
+    case SuccessPrinting() => //do nothing
   }
 
   def ATMWithCard: Receive = {
-    case TypePin(pin) =>
+    case msg@TypePin(pin) =>
       if (isValidPin(pin)) {
         printer ! WelcomeMessage("Hello, John!")
         context become AuthenticatedATM
